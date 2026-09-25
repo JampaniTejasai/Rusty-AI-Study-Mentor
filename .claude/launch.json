@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "rusty-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173,
+      "cwd": "frontend"
+    },
+    {
+      "name": "rusty-backend",
+      "runtimeExecutable": "./venv/bin/uvicorn",
+      "runtimeArgs": ["app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "app", "--reload-dir", "rag"],
+      "port": 8000,
+      "cwd": "backend"
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+---
+# OWASP ZAP Automation Framework configuration
+# Scans Rusty frontend (port 5173) + backend API (port 8000) together
+# Run via: docker run --rm --network host -v $(pwd)/zap:/zap/wrk zaproxy/zap-stable \
+#          zap.sh -cmd -autorun /zap/wrk/zap-config.yaml
+
+env:
+  contexts:
+    - name: "Rusty Frontend + API"
+      urls:
+        - "http://localhost:5173"
+      includePaths:
+        - "http://localhost:5173.*"
+      excludePaths:
+        # Vite internals and static assets — not worth scanning
+        - "http://localhost:5173/@vite.*"
+        - "http://localhost:5173/node_modules/.*"
+        - "http://localhost:5173/src/.*\\.ts$"
+        - "http://localhost:5173/.*\\.(ico|png|jpg|svg|woff2?)$"
+      authentication:
+        method: "json"
+        parameters:
+          loginPageUrl: "http://localhost:5173"
+          loginRequestUrl: "http://localhost:5173/api/auth/login"
+          loginRequestBody: '{"student_id": "KHEL-2026-001", "pin": "1234"}'
+        verification:
+          method: "response"
+          pollFrequency: 60
+          loggedInRegex: "token"
+
+    - name: "Rusty Backend API Direct"
+      urls:
+        - "http://localhost:8000"
+      includePaths:
+        - "http://localhost:8000.*"
+      excludePaths:
+        - "http://localhost:8000/docs.*"
+        - "http://localhost:8000/redoc.*"
+        - "http://localhost:8000/openapi.json"
+
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+
+jobs:
+  # ──────────────────────────────────────
+  # Phase 1: Passive scan of frontend
+  # ──────────────────────────────────────
+  - type: spider
+    parameters:
+      context: "Rusty Frontend + API"
+      url: "http://localhost:5173"
+      maxDuration: 5        # minutes
+      maxDepth: 5
+      maxChildren: 20
+    name: "spider-frontend"
+
+  - type: spiderAjax
+    parameters:
+      context: "Rusty Frontend + API"
+      url: "http://localhost:5173"
+      maxDuration: 5        # minutes
+      maxCrawlDepth: 5
+      numberOfBrowsers: 2
+    name: "ajax-spider-frontend"
+
+  # ──────────────────────────────────────
+  # Phase 2: API scan of backend endpoints
+  # ──────────────────────────────────────
+  - type: openapi
+    parameters:
+      apiUrl: "http://localhost:8000/openapi.json"
+      context: "Rusty Backend API Direct"
+    name: "import-openapi"
+
+  # ──────────────────────────────────────
+  # Phase 3: Passive scan results
+  # ──────────────────────────────────────
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 3        # minutes
+    name: "passive-scan-wait"
+
+  # ──────────────────────────────────────
+  # Phase 4: Active scan (attack)
+  # ──────────────────────────────────────
+  - type: activeScan
+    parameters:
+      context: "Rusty Frontend + API"
+      maxRuleDurationInMins: 2
+      maxScanDurationInMins: 15
+      policy: "Default Policy"
+    policyDefinition:
+      rules:
+        # SQL Injection — critical for this project
+        - id: 40018
+          strength: "insane"
+          threshold: "low"
+        # Cross-Site Scripting (Reflected)
+        - id: 40012
+          strength: "high"
+          threshold: "low"
+        # Cross-Site Scripting (Persistent)
+        - id: 40014
+          strength: "high"
+          threshold: "low"
+        # Server Side Include
+        - id: 40009
+          strength: "high"
+          threshold: "medium"
+        # Remote File Inclusion
+        - id: 7
+          strength: "high"
+          threshold: "medium"
+        # Path Traversal
+        - id: 6
+          strength: "high"
+          threshold: "low"
+        # Command Injection
+        - id: 90020
+          strength: "insane"
+          threshold: "low"
+        # LDAP Injection
+        - id: 40015
+          strength: "high"
+          threshold: "medium"
+        # CRLF Injection
+        - id: 40003
+          strength: "high"
+          threshold: "medium"
+        # External Redirect
+        - id: 20019
+          strength: "high"
+          threshold: "medium"
+        # CSRF
+        - id: 20012
+          strength: "high"
+          threshold: "low"
+    name: "active-scan"
+
+  - type: activeScan
+    parameters:
+      context: "Rusty Backend API Direct"
+      maxRuleDurationInMins: 2
+      maxScanDurationInMins: 15
+    name: "active-scan-api"
+
+  # ──────────────────────────────────────
+  # Phase 5: Report generation
+  # ──────────────────────────────────────
+  - type: report
+    parameters:
+      template: "modern"
+      reportDir: "/zap/wrk/reports"
+      reportFile: "rusty-zap-report"
+      reportTitle: "Rusty Security Scan Report"
+      reportDescription: "OWASP ZAP scan of Rusty AI Study Mentor (frontend + backend)"
+      displayReport: false
+    risks:
+      - high
+      - medium
+      - low
+      - info
+    confidences:
+      - high
+      - medium
+      - low
+    name: "generate-report"
+
+  - type: report
+    parameters:
+      template: "traditional-json"
+      reportDir: "/zap/wrk/reports"
+      reportFile: "rusty-zap-report"
+      reportTitle: "Rusty Security Scan Report"
+      displayReport: false
+    name: "generate-json-report"

@@ -1,0 +1,53 @@
+version: "3.9"
+
+# Extends the main docker-compose.yml with a ZAP security scanner service.
+# Usage:
+#   Quick baseline scan:
+#     docker compose -f docker-compose.yml -f docker-compose.zap.yml run --rm zap-baseline
+#
+#   API scan (uses OpenAPI spec):
+#     docker compose -f docker-compose.yml -f docker-compose.zap.yml run --rm zap-api
+#
+#   Full scan (frontend + backend + active attacks):
+#     docker compose -f docker-compose.yml -f docker-compose.zap.yml run --rm zap-full
+#
+# Prerequisites: backend on :8000, frontend on :5173 (run outside Docker on host)
+
+services:
+  zap-baseline:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    network_mode: host
+    volumes:
+      - ./zap:/zap/wrk:rw
+    command: >
+      zap-baseline.py
+        -t http://localhost:5173
+        -r reports/baseline_$(date +%Y%m%d_%H%M%S).html
+        -J reports/baseline_$(date +%Y%m%d_%H%M%S).json
+        -I
+    profiles:
+      - security
+
+  zap-api:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    network_mode: host
+    volumes:
+      - ./zap:/zap/wrk:rw
+    command: >
+      zap-api-scan.py
+        -t http://localhost:8000/openapi.json
+        -f openapi
+        -r reports/api_scan.html
+        -J reports/api_scan.json
+        -I
+    profiles:
+      - security
+
+  zap-full:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    network_mode: host
+    volumes:
+      - ./zap:/zap/wrk:rw
+    command: zap.sh -cmd -autorun /zap/wrk/zap-config.yaml
+    profiles:
+      - security

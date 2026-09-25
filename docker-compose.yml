@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: rusty_dev
+      POSTGRES_USER: rusty
+      POSTGRES_PASSWORD: localdev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rusty -d rusty_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  firebase:
+    image: andreysenov/firebase-tools
+    command: firebase emulators:start --only auth,firestore --project demo-rusty
+    ports:
+      - "9099:9099"   # Auth emulator
+      - "8080:8080"   # Firestore emulator
+      - "4000:4000"   # Emulator UI
+    volumes:
+      - ./firebase.json:/home/node/firebase.json:ro
+    environment:
+      - FIREBASE_TOKEN=dummy-for-emulator
+
+volumes:
+  postgres_data:

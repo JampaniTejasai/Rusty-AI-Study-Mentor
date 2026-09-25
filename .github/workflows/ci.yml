@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  # ── Secret scanning — fails build if any credential is found in code ────────
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run truffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          extra_args: --only-verified
+
+  # ── Backend ──────────────────────────────────────────────────────────────────
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: rusty_test
+          POSTGRES_USER: rusty
+          POSTGRES_PASSWORD: testpass
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: backend
+        run: pip install -r requirements-dev.txt
+
+      - name: pip-audit (CVE check — fails on high/critical)
+        working-directory: backend
+        run: pip-audit --requirement requirements.txt --severity high
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://rusty:testpass@localhost:5432/rusty_test
+          FIREBASE_AUTH_EMULATOR_HOST: localhost:9099
+          FIRESTORE_EMULATOR_HOST: localhost:8080
+          FIREBASE_PROJECT_ID: demo-rusty
+          VERTEX_AI_PROJECT: demo
+          SECRET_KEY: test-secret-not-for-prod
+          SAFEGUARDING_ALERT_EMAIL: test@example.com
+          PHRASES_FILE_PATH: ../safeguarding/phrases_v1.json
+          ALLOWED_ORIGINS: http://localhost:5173
+          APP_ENV: development
+        run: pytest tests/ -v --cov=app --cov-report=term-missing
+
+  # ── Frontend ─────────────────────────────────────────────────────────────────
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: npm audit (fails on high/critical)
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+      - name: Type check
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+      - name: Tests
+        working-directory: frontend
+        run: npm test
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build

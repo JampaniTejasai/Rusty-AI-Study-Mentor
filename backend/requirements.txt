@@ -1,0 +1,35 @@
+# Pin ALL versions exactly — prevents supply-chain drift and unexpected breaks
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+gunicorn==22.0.0
+
+# Database
+sqlalchemy==2.0.30
+asyncpg==0.29.0
+alembic==1.13.1
+pgvector==0.3.2
+
+# Validation
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# Auth
+firebase-admin==6.5.0
+bcrypt==4.1.3
+
+# Rate limiting
+slowapi==0.1.9
+
+# GCP / AI
+google-cloud-aiplatform==1.53.0
+google-cloud-firestore==2.16.0
+google-cloud-storage==2.17.0
+
+# HTTP
+httpx==0.27.0
+
+# Security
+python-jose[cryptography]==3.3.0
+
+# Observability
+structlog==24.2.0

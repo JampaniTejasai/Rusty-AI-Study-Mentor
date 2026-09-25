@@ -1,0 +1,110 @@
+{
+  "name": "Mathematics Class 8 — Squares and Square Roots",
+  "subject": "mathematics",
+  "class_num": 8,
+  "default_chapter": "Squares and Square Roots",
+  "medium": "en",
+  "cases": [
+    {
+      "id": "factual-001",
+      "question": "What is a perfect square?",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["number", "square", "itself"],
+      "should_answer": true,
+      "category": "factual"
+    },
+    {
+      "id": "factual-002",
+      "question": "What is the square root of 144?",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["square root", "144"],
+      "exact_match": "12",
+      "should_answer": true,
+      "category": "factual"
+    },
+    {
+      "id": "factual-003",
+      "question": "Is 256 a perfect square? If yes, what is its square root?",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["256", "perfect square"],
+      "exact_match": "16",
+      "should_answer": true,
+      "category": "factual"
+    },
+    {
+      "id": "conceptual-001",
+      "question": "How do you find the square root of a number using prime factorization?",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["prime", "factor"],
+      "should_answer": true,
+      "category": "conceptual"
+    },
+    {
+      "id": "conceptual-002",
+      "question": "What patterns do perfect squares show in their unit digits?",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["digit", "square"],
+      "should_answer": true,
+      "category": "conceptual"
+    },
+    {
+      "id": "conceptual-003",
+      "question": "What is the relationship between consecutive perfect squares?",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["consecutive", "odd"],
+      "should_answer": true,
+      "category": "conceptual"
+    },
+    {
+      "id": "property-001",
+      "question": "Can a perfect square end in 2, 3, 7, or 8?",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["no", "end"],
+      "should_answer": true,
+      "category": "property"
+    },
+    {
+      "id": "edge-001",
+      "question": "squares",
+      "chapter": "Squares and Square Roots",
+      "expected_chapter": "Squares and Square Roots",
+      "expected_keywords": ["square"],
+      "should_answer": true,
+      "category": "edge"
+    },
+    {
+      "id": "oos-001",
+      "question": "What is photosynthesis?",
+      "chapter": null,
+      "expected_chapter": null,
+      "expected_keywords": [],
+      "should_answer": false,
+      "category": "out-of-scope"
+    },
+    {
+      "id": "oos-002",
+      "question": "Who was the first president of India?",
+      "chapter": null,
+      "expected_chapter": null,
+      "expected_keywords": [],
+      "should_answer": false,
+      "category": "out-of-scope"
+    },
+    {
+      "id": "oos-003",
+      "question": "Tell me a joke about elephants",
+      "chapter": null,
+      "expected_chapter": null,
+      "expected_keywords": [],
+      "should_answer": false,
+      "category": "out-of-scope"
+    }
+  ]
+}

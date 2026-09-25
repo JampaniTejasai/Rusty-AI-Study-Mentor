@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+.shimmer-line {
+  background: linear-gradient(90deg, #E7DECF 25%, #F5EEE2 50%, #E7DECF 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* Hide horizontal scrollbar on mobile while keeping scroll */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: #FBF7EF; /* rusty-sand */
+    color: #2A2520;            /* rusty-ink */
+    font-family: "Noto Sans", "Noto Sans Devanagari", system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Minimum tap target enforced globally */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Visible focus ring — never invisible */
+  :focus-visible {
+    outline: 2px solid #2E6B4C;
+    outline-offset: 2px;
+  }
+
+  /* No layout scroll */
+  #root {
+    overflow-x: hidden;
+  }
+}

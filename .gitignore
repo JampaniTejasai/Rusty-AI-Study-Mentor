@@ -1,0 +1,66 @@
+# Environment & secrets — NEVER commit these
+.env
+.env.*
+!.env.template
+service-account-*.json
+*.key
+secrets/
+credentials.json
+*-credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.mypy_cache/
+.ruff_cache/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+.turbo/
+
+# Terraform
+infra/.terraform/
+infra/**/*.tfstate
+infra/**/*.tfstate.*
+infra/**/.terraform.lock.hcl
+infra/**/terraform.tfvars
+!infra/**/terraform.tfvars.example
+
+# Docker
+.docker/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Test artifacts
+coverage/
+test-results/
+playwright-report/
+
+# Security scan reports
+zap/reports/
